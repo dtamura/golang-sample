@@ -1,17 +1,32 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
+// ハンドラー。処理を記述する。
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World!!")
+}
+
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	// ルーティング設定
+	r := mux.NewRouter()
+	r.HandleFunc("/hello", helloHandler)
+
+	// サーバ設定
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         "0.0.0.0:8080",
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	// 起動
+	log.Fatal(srv.ListenAndServe())
 }
